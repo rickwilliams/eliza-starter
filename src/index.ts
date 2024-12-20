@@ -24,7 +24,6 @@ import {
 } from "@ai16z/eliza";
 import { bootstrapPlugin } from "@ai16z/plugin-bootstrap";
 import { solanaPlugin } from "@ai16z/plugin-solana";
-import { nodePlugin } from "@ai16z/plugin-node";
 import Database from "better-sqlite3";
 import fs from "fs";
 import readline from "readline";
@@ -33,6 +32,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { character } from "./character.ts";
 import type { DirectClient } from "@ai16z/client-direct";
+import { imageGenerationPlugin } from "@ai16z/plugin-image-generation";
+import { webSearchPlugin } from "@ai16z/plugin-web-search";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -219,8 +220,9 @@ export function createAgent(
     character,
     plugins: [
       bootstrapPlugin,
-      nodePlugin,
       character.settings.secrets?.WALLET_PUBLIC_KEY ? solanaPlugin : null,
+      imageGenerationPlugin,
+      webSearchPlugin
     ].filter(Boolean),
     providers: [],
     actions: [],
@@ -279,7 +281,7 @@ async function startAgent(character: Character, directClient: DirectClient) {
 }
 
 const startAgents = async () => {
-  const directClient = await DirectClientInterface.start();
+  const directClient = await DirectClientInterface.start({} as IAgentRuntime);
   const args = parseArguments();
 
   let charactersArg = args.characters || args.character;
